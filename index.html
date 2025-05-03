@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Fullscreen Shader</title>
+  <title>CB Fullscreen Shader</title>
   <style>
     html, body {
       margin: 0;
@@ -19,18 +19,32 @@
   <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
   <script>
     let myShader;
+    let quadVerts;
 
     function setup() {
       createCanvas(windowWidth, windowHeight, WEBGL);
       noStroke();
       myShader = createShader(vertShader, fragShader);
+
+      // Create a full-screen quad (2 triangles forming a square)
+      quadVerts = createBuffer();
     }
 
     function draw() {
       shader(myShader);
       myShader.setUniform("iTime", millis() / 1000.0);
       myShader.setUniform("iResolution", [width, height]);
-      rect(-width / 2, -height / 2, width, height);
+
+      // Use the full-screen quad
+      beginShape(TRIANGLES);
+      vertex(-1, -1, 0, 0, 0);
+      vertex(1, -1, 0, 1, 0);
+      vertex(1, 1, 0, 1, 1);
+
+      vertex(-1, -1, 0, 0, 0);
+      vertex(1, 1, 0, 1, 1);
+      vertex(-1, 1, 0, 0, 1);
+      endShape();
     }
 
     function windowResized() {
