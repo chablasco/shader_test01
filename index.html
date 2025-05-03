@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fullscreen Shader</title>
   <style>
     html, body {
@@ -19,6 +19,7 @@
   <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
   <script>
     let myShader;
+    let quadBuffer;
 
     function setup() {
       createCanvas(windowWidth, windowHeight, WEBGL);
@@ -30,7 +31,17 @@
       shader(myShader);
       myShader.setUniform("iTime", millis() / 1000.0);
       myShader.setUniform("iResolution", [width, height]);
-      rect(-width / 2, -height / 2, width, height);
+
+      // Draw a full-screen quad in clip space
+      beginShape(TRIANGLES);
+      vertex(-1, -1, 0);
+      vertex(1, -1, 0);
+      vertex(1, 1, 0);
+
+      vertex(-1, -1, 0);
+      vertex(1, 1, 0);
+      vertex(-1, 1, 0);
+      endShape();
     }
 
     function windowResized() {
@@ -38,12 +49,10 @@
     }
 
     function mousePressed() {
-      let fs = fullscreen();
-      fullscreen(!fs);
+      fullscreen(!fullscreen());
     }
 
     const vertShader = `
-      precision mediump float;
       attribute vec3 aPosition;
       varying vec2 vUv;
 
