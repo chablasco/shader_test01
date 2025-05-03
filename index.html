@@ -63,33 +63,39 @@
     `;
 
     const fragShader = `
-      precision mediump float;
+    precision mediump float;
 
-      uniform float iTime;
-      uniform vec2 iResolution;
-      varying vec2 vUv;
+uniform float iTime;
+uniform vec2 iResolution;
+uniform vec2 iMouse;
+varying vec2 vUv;
 
-      #define t iTime
-      #define r iResolution.xy
+#define t iTime
+#define r iResolution.xy
 
-      void main() {
-        vec2 fragCoord = vUv * r;
-        vec3 c;
-        float l, z = t;
+void main() {
+    vec2 fragCoord = vUv * r;
+    vec2 mouse = iMouse / r;
 
-        for(int i = 0; i < 3; i++) {
-          vec2 uv, p = fragCoord.xy / r;
-          uv = p;
-          p -= 0.5;
-          p.x *= r.x / r.y;
-          z += 0.07;
-          l = length(p);
-          uv += p / l * (sin(z) + 1.0) * abs(sin(l * 9.0 - z - z));
-          c[i] = 0.01 / length(mod(uv, 1.0) - 0.5);
-        }
+    vec3 c;
+    float l, z = t;
 
-        gl_FragColor = vec4(c / l, 1.0);
-      }
+    float waveIntensity = mix(0.5, 3.0, mouse.x);      // mouseX controls wave frequency
+    float reflectionSharpness = mix(0.005, 0.05, mouse.y); // mouseY controls reflection sharpness
+
+    for (int i = 0; i < 3; i++) {
+        vec2 uv, p = fragCoord.xy / r;
+        uv = p;
+        p -= 0.5;
+        p.x *= r.x / r.y;
+        z += 0.07;
+        l = length(p);
+        uv += p / l * (sin(z * waveIntensity) + 1.0) * abs(sin(l * 9.0 * waveIntensity - z - z));
+        c[i] = reflectionSharpness / length(mod(uv, 1.0) - 0.5);
+    }
+
+    gl_FragColor = vec4(c / l, 1.0);
+}
     `;
   </script>
 </body>
