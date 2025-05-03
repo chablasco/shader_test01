@@ -63,43 +63,33 @@
     `;
 
     const fragShader = `
-precision mediump float;
+      precision mediump float;
 
-uniform float iTime;
-uniform vec2 iResolution;
-uniform vec2 iMouse;
-varying vec2 vUv;
+      uniform float iTime;
+      uniform vec2 iResolution;
+      varying vec2 vUv;
 
-void main() {
-  vec2 uv = vUv;
-  vec2 res = iResolution;
-  vec2 mouse = iMouse / res;
+      #define t iTime
+      #define r iResolution.xy
 
-  vec2 center = mouse;
-  vec2 p = uv - center;
+      void main() {
+        vec2 fragCoord = vUv * r;
+        vec3 c;
+        float l, z = t;
 
-  // Adjust aspect ratio
-  p.x *= res.x / res.y;
+        for(int i = 0; i < 3; i++) {
+          vec2 uv, p = fragCoord.xy / r;
+          uv = p;
+          p -= 0.5;
+          p.x *= r.x / r.y;
+          z += 0.07;
+          l = length(p);
+          uv += p / l * (sin(z) + 1.0) * abs(sin(l * 9.0 - z - z));
+          c[i] = 0.01 / length(mod(uv, 1.0) - 0.5);
+        }
 
-  float len = length(p);
-
-  // Swirl based on distance and mouse
-  float angle = atan(p.y, p.x) + 2.0 * sin(len * 20.0 - iTime * 2.0);
-  float radius = pow(len, 0.5);
-
-  vec2 swirl = vec2(cos(angle), sin(angle)) * radius;
-
-  // Modulate by mouseX
-  swirl *= 1.0 + 0.5 * sin(iTime + mouse.x * 10.0);
-
-  // Reflections by repeating space
-  vec2 repeated = mod(swirl, 0.2) - 0.1;
-
-  float brightness = 0.01 / length(repeated);
-  vec3 color = vec3(brightness * 0.8, brightness * 0.5, brightness);
-
-  gl_FragColor = vec4(color, 1.0);
-}
+        gl_FragColor = vec4(c / l, 1.0);
+      }
     `;
   </script>
 </body>
