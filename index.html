@@ -70,33 +70,35 @@ uniform vec2 iResolution;
 uniform vec2 iMouse;
 varying vec2 vUv;
 
-#define t iTime
-#define r iResolution.xy
-
 void main() {
-    vec2 uv = vUv;
-    vec2 fragCoord = uv * r;
-    vec2 mouse = iMouse / r;
+  vec2 uv = vUv;
+  vec2 res = iResolution;
+  vec2 mouse = iMouse / res;
 
-    vec3 c = vec3(0.0);
-    float z = t;
-    float bubbleTrail = 0.0;
+  vec2 center = mouse;
+  vec2 p = uv - center;
 
-    vec2 p = uv - mouse; // vector from mouse
-    p.x *= r.x / r.y;
-    float dist = length(p);
+  // Adjust aspect ratio
+  p.x *= res.x / res.y;
 
-    // Bubble shape falloff
-    float bubble = 0.1 / (dist + 0.01);  // more intense closer to center
+  float len = length(p);
 
-    // Animate waves inside the bubble
-    float wave = sin(20.0 * dist - t * 5.0) * 0.5 + 0.5;
-    bubble *= wave;
+  // Swirl based on distance and mouse
+  float angle = atan(p.y, p.x) + 2.0 * sin(len * 20.0 - iTime * 2.0);
+  float radius = pow(len, 0.5);
 
-    // Final color composition
-    c += vec3(bubble, bubble * 0.6, bubble * 0.9);
+  vec2 swirl = vec2(cos(angle), sin(angle)) * radius;
 
-    gl_FragColor = vec4(c, 1.0);
+  // Modulate by mouseX
+  swirl *= 1.0 + 0.5 * sin(iTime + mouse.x * 10.0);
+
+  // Reflections by repeating space
+  vec2 repeated = mod(swirl, 0.2) - 0.1;
+
+  float brightness = 0.01 / length(repeated);
+  vec3 color = vec3(brightness * 0.8, brightness * 0.5, brightness);
+
+  gl_FragColor = vec4(color, 1.0);
 }
     `;
   </script>
