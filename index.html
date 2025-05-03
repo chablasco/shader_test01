@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fullscreen Shader</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fullscreen Shader with Mouse</title>
   <style>
     html, body {
       margin: 0;
@@ -19,7 +19,6 @@
   <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
   <script>
     let myShader;
-    let quadBuffer;
 
     function setup() {
       createCanvas(windowWidth, windowHeight, WEBGL);
@@ -31,8 +30,8 @@
       shader(myShader);
       myShader.setUniform("iTime", millis() / 1000.0);
       myShader.setUniform("iResolution", [width, height]);
+      myShader.setUniform("iMouse", [mouseX, height - mouseY]); // flip Y to match OpenGL
 
-      // Draw a full-screen quad in clip space
       beginShape(TRIANGLES);
       vertex(-1, -1, 0);
       vertex(1, -1, 0);
@@ -55,7 +54,6 @@
     const vertShader = `
       attribute vec3 aPosition;
       varying vec2 vUv;
-
       void main() {
         vUv = (aPosition.xy + 1.0) * 0.5;
         gl_Position = vec4(aPosition, 1.0);
@@ -67,6 +65,7 @@
 
       uniform float iTime;
       uniform vec2 iResolution;
+      uniform vec2 iMouse;
       varying vec2 vUv;
 
       #define t iTime
@@ -74,13 +73,15 @@
 
       void main() {
         vec2 fragCoord = vUv * r;
+        vec2 mouse = iMouse / r;
+
         vec3 c;
         float l, z = t;
 
         for(int i = 0; i < 3; i++) {
           vec2 uv, p = fragCoord.xy / r;
           uv = p;
-          p -= 0.5;
+          p -= mouse - 0.5; // center effect around mouse
           p.x *= r.x / r.y;
           z += 0.07;
           l = length(p);
