@@ -29,7 +29,7 @@
 
     function draw() {
       shader(myShader);
-      myShader.setUniform("iTime", millis() / 3000.0);
+      myShader.setUniform("iTime", millis() / 2000.0);
       myShader.setUniform("iResolution", [width, height]);
 
       // Draw a full-screen quad in clip space
