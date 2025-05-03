@@ -29,7 +29,7 @@
 
     function draw() {
       shader(myShader);
-      myShader.setUniform("iTime", millis() / 1000.0);
+      myShader.setUniform("iTime", millis() / 3000.0);
       myShader.setUniform("iResolution", [width, height]);
 
       // Draw a full-screen quad in clip space
@@ -84,7 +84,7 @@
           p.x *= r.x / r.y;
           z += 0.07;
           l = length(p);
-          uv += p / l * (sin(z) + 1.0) * abs(sin(l * 9.0 - z - z));
+          uv += p / l * (sin(z) + 1.0) * abs(sin(l * 19.0 - z - z));
           c[i] = 0.01 / length(mod(uv, 1.0) - 0.5);
         }
 
